@@ -4,6 +4,7 @@ import { checkExistingUsername } from '../middleware/checkExistingUsername.js';
 import { createUserAccount, getUserAccount, updateUserAccount } from '../controllers/userController.js';
 import { checkNoNoQueryParams} from '../middleware/checkNoQueryParams.js';
 import { authenticateToken } from '../authentication/basicAuthentication.js';
+import { updateUserValidator } from '../validators/updateUserInputValidator.js';
 
 const userRouter = express.Router();
 
@@ -12,6 +13,6 @@ userRouter.post('/', checkNoNoQueryParams, createUserInputValidator, checkExisti
 
 //authenticated enpoints
 userRouter.get('/self', authenticateToken, getUserAccount);
-userRouter.get('/self', authenticateToken, updateUserAccount);
+userRouter.put('/self', authenticateToken, updateUserValidator, updateUserAccount);
 
 export default userRouter;
