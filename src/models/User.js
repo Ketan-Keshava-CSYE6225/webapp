@@ -48,8 +48,16 @@ const User = db.sequelize.define('User', {
     allowNull: false
   }
 }, {
-  timestamps: false, // Disable sequelize's default timestamps (createdAt, updatedAt)
-  tableName: 'users' // Define the table name explicitly
+  // timestamps: false, // Disable sequelize's default timestamps (createdAt, updatedAt)
+  tableName: 'users', // Define the table name explicitly
+  updatedAt: 'account_created',
+  createdAt: 'account_updated',
+  indexes: [
+    {
+      unique: true,
+      fields: ['username']
+    }
+  ]
 });
 
 // Export the User model
