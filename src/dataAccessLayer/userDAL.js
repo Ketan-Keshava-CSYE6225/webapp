@@ -8,4 +8,12 @@ const findUserByUsername = async (un) => {
     return await User.findOne({ where : { username : un } });
 }
 
-export { createUser , findUserByUsername}
+const  updateUserByUsername = async (un, userData) => {
+    const [, updatedUser] = await User.update(userData, {
+        where: { username: un },
+        returning: true
+    })
+
+    return updatedUser;
+}
+export { createUser , findUserByUsername, updateUserByUsername }
