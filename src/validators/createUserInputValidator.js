@@ -6,9 +6,33 @@ import ajvErrors from 'ajv-errors'
 const schema = {
   type: 'object',
   properties: {
-    first_name: { type: 'string', minLength: 1 },
-    last_name: { type: 'string', minLength: 1 },
-    password: { type: 'string', minLength: 6 },
+    first_name: { 
+      type: 'string', 
+      minLength: 1, // Minimum length of 1 character
+      pattern: '^[a-zA-Z]+$', // Alphabetic characters only
+      errorMessage: {
+        minLength: 'First name must be at least one character long',
+        pattern: 'First name must contain only alphabetic characters'
+      }
+    },
+    last_name: { 
+      type: 'string', 
+      minLength: 1, // Minimum length of 1 character
+      pattern: '^[a-zA-Z]+$', // Alphabetic characters only
+      errorMessage: {
+        minLength: 'Last name must be at least one character long',
+        pattern: 'Last name must contain only alphabetic characters'
+      }
+    },
+    password: {
+      type: 'string',
+      minLength: 8,
+      pattern: '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*])[A-Za-z\\d@$!%*?&]+$',
+      errorMessage: {
+        minLength: 'Password must be at least eight characters long',
+        pattern: 'Password should contain at least one uppercase letter, one lowercase letter, one number, and one special character (@, $, !, &, etc)'
+      }
+    },
     username: { 
       type: 'string', 
       pattern: '^\\S+@\\S+\\.\\S+$', // Regex pattern for email validation
@@ -33,6 +57,14 @@ const createUserInputValidator = (req, res, next) => {
   if (!valid) {
     // If validation fails, return a 400 Bad Request response
     return res.status(400).json({ error: 'Invalid request body', errors: validate.errors });
+  }
+
+  // Check for unexpected properties
+  const allowedProperties = ['first_name', 'last_name', 'password', 'username'];
+  const unexpectedProperties = Object.keys(req.body).filter(property => !allowedProperties.includes(property));
+
+  if (unexpectedProperties.length > 0) {
+    return res.status(400).json({ error: 'Unexpected properties in request body', unexpectedProperties });
   }
 
   next();
