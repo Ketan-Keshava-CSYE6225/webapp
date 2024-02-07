@@ -12,7 +12,7 @@ const userRouter = express.Router();
 userRouter.post('/', checkNoNoQueryParams, createUserInputValidator, checkExistingUsername, createUserAccount);
 
 //authenticated enpoints
-userRouter.get('/self', authenticateToken, getUserAccount);
-userRouter.put('/self', authenticateToken, updateUserValidator, updateUserAccount);
+userRouter.get('/self', authenticateToken, checkNoNoQueryParams, getUserAccount);
+userRouter.put('/self', authenticateToken, checkNoNoQueryParams, updateUserValidator, updateUserAccount);
 
 export default userRouter;
