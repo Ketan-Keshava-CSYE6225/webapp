@@ -50,8 +50,8 @@ const User = db.sequelize.define('User', {
 }, {
   // timestamps: false, // Disable sequelize's default timestamps (createdAt, updatedAt)
   tableName: 'users', // Define the table name explicitly
-  updatedAt: 'account_created',
-  createdAt: 'account_updated',
+  createdAt: 'account_created',
+  updatedAt: 'account_updated',
   indexes: [
     {
       unique: true,
