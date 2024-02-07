@@ -1,7 +1,8 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
+import { createUser } from '../dataAccessLayer/userDAL.js';
 
-const createUser = async (req, res) => {
+const createUserAccount = async (req, res) => {
   try {
     const { first_name, last_name, password, username } = req.body;
 
@@ -12,13 +13,13 @@ const createUser = async (req, res) => {
     const currentDateTime = new Date();
 
     // Create the user in the database
-    const newUser = await User.create({
+    const newUser = await createUser({
       first_name,
       last_name,
       password: hashedPassword,
       username,
-      account_created: currentDateTime,
-      account_updated: currentDateTime
+      // account_created: currentDateTime,
+      // account_updated: currentDateTime
     });
 
     // Exclude password from response payload
@@ -33,15 +34,20 @@ const createUser = async (req, res) => {
 
     res.status(201).json(userResponse);
   } catch (error) {
-    console.error('Error creating user:', error);
 
     // Check for specific error types
     if (error.name === 'SequelizeUniqueConstraintError') {
       return res.status(400).json({ error: 'User with this email already exists' });
     }
 
+    if (error.name && error.name === "SequelizeConnectionRefusedError"){
+      console.error('Database connection error: ', error);
+      return res.status(503).send();
+    }
+    
+    console.error('Error creating user:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
-export { createUser };
+export { createUserAccount };
