@@ -50,4 +50,32 @@ const createUserAccount = async (req, res) => {
   }
 };
 
-export { createUserAccount };
+const updateUserAccount = async (req, res) => {
+  try{
+    res.status(204).json();
+  } catch(error){
+    if (error.name && error.name === 'SequelizeConnectionRefusedError') {
+      console.error('Database connection error: ', error);
+      return res.status(503).json();
+    } else {
+        console.error('Error authenticating user:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+}
+
+const getUserAccount = async (req, res) => {
+  try{
+    res.status(200).json();
+  } catch(error){
+    if (error.name && error.name === 'SequelizeConnectionRefusedError') {
+      console.error('Database connection error: ', error);
+      return res.status(503).json();
+    } else {
+        console.error('Error authenticating user:', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+}
+
+export { createUserAccount, getUserAccount, updateUserAccount };
