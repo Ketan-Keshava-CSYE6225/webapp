@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
-import { createUser } from '../dataAccessLayer/userDAL.js';
+import { createUser, updateUserByUsername } from '../dataAccessLayer/userDAL.js';
+import { mapUserWithoutPassword } from '../mappers/userMappers.js';
 
 const createUserAccount = async (req, res) => {
   try {
@@ -52,6 +53,36 @@ const createUserAccount = async (req, res) => {
 
 const updateUserAccount = async (req, res) => {
   try{
+    const authenticatedUser = req.user;
+
+    const first_name = req.body.first_name;
+    const last_name = req.body.last_name;
+    const password = req.body.password;
+
+    //Hash the password before storing
+    let hashedPassword;
+    if(password) {
+      hashedPassword = await bcrypt.hash(password, 10);
+    }
+
+    // Constructing updated user data
+    const updateUserData = {};
+    if(first_name){
+      updateUserData.first_name = first_name;
+    }
+    if(last_name){
+      updateUserData.last_name = last_name;
+    }
+    if(password){
+      updateUserData.password = hashedPassword;
+    }
+
+    console.log(updateUserData)
+
+    //Update user information
+    const updatedUser = updateUserByUsername(authenticatedUser.username, updateUserData);
+    console.log("Updated User Data -> ", updatedUser)
+
     res.status(204).json();
   } catch(error){
     if (error.name && error.name === 'SequelizeConnectionRefusedError') {
@@ -66,7 +97,10 @@ const updateUserAccount = async (req, res) => {
 
 const getUserAccount = async (req, res) => {
   try{
-    res.status(200).json();
+    const authenticatedUser = req.user;
+    const userWithoutPassword = mapUserWithoutPassword(authenticatedUser);
+    
+    res.status(200).json(userWithoutPassword);
   } catch(error){
     if (error.name && error.name === 'SequelizeConnectionRefusedError') {
       console.error('Database connection error: ', error);
