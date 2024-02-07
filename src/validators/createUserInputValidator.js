@@ -51,20 +51,20 @@ ajvErrors(ajv);
 const validate = ajv.compile(schema);
 
 const createUserInputValidator = (req, res, next) => {
-  // Validating the request body against the JSON schema
-  const valid = validate(req.body);
-
-  if (!valid) {
-    // If validation fails, return a 400 Bad Request response
-    return res.status(400).json({ error: 'Invalid request body', errors: validate.errors });
-  }
-
   // Check for unexpected properties
   const allowedProperties = ['first_name', 'last_name', 'password', 'username'];
   const unexpectedProperties = Object.keys(req.body).filter(property => !allowedProperties.includes(property));
 
   if (unexpectedProperties.length > 0) {
     return res.status(400).json({ error: 'Unexpected properties in request body', unexpectedProperties });
+  }
+
+  // Validating the request body against the JSON schema
+  const valid = validate(req.body);
+
+  if (!valid) {
+    // If validation fails, return a 400 Bad Request response
+    return res.status(400).json({ error: 'Invalid request body', errors: validate.errors });
   }
 
   next();
