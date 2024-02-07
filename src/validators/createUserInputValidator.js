@@ -26,7 +26,7 @@ ajvErrors(ajv);
 // Create a validator function based on the JSON schema
 const validate = ajv.compile(schema);
 
-const inputValidation = (req, res, next) => {
+const createUserInputValidator = (req, res, next) => {
   // Validating the request body against the JSON schema
   const valid = validate(req.body);
 
@@ -38,4 +38,4 @@ const inputValidation = (req, res, next) => {
   next();
 };
 
-export { inputValidation };
+export { createUserInputValidator };
