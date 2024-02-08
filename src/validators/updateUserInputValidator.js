@@ -45,6 +45,12 @@ ajvErrors(ajv);
 const validate = ajv.compile(schema);
 
 const updateUserValidator = (req, res, next) => {
+    //Check if request body contains the field to be updated
+    const { first_name, last_name, password } = req.body;
+    if(first_name === undefined && last_name === undefined && password === undefined){
+      return res.status(400).json({ message: 'Please provide atleast one field to update'})
+    }
+    
     // Check for unexpected properties
     const allowedProperties = ['first_name', 'last_name', 'password'];
     const unexpectedProperties = Object.keys(req.body).filter(property => !allowedProperties.includes(property));

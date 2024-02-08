@@ -52,7 +52,7 @@ const validate = ajv.compile(schema);
 
 const createUserInputValidator = (req, res, next) => {
   // Check for unexpected properties
-  const allowedProperties = ['first_name', 'last_name', 'password', 'username'];
+  const allowedProperties = ['first_name', 'last_name', 'password', 'username', 'account_created', 'account_updated'];
   const unexpectedProperties = Object.keys(req.body).filter(property => !allowedProperties.includes(property));
 
   if (unexpectedProperties.length > 0) {
