@@ -5,14 +5,29 @@ import { createUserAccount, getUserAccount, updateUserAccount } from '../control
 import { checkNoNoQueryParams} from '../middleware/checkNoQueryParams.js';
 import { authenticateToken } from '../authentication/basicAuthentication.js';
 import { updateUserValidator } from '../validators/updateUserInputValidator.js';
+import { modifyHeadersForUser } from '../middleware/modifyHeadersForUser.js';
+import { methodNotAllowedHandler } from '../middleware/methodNotAllowedHandler.js';
 
 const userRouter = express.Router();
 
 //public endpoints
-userRouter.post('/', checkNoNoQueryParams, createUserInputValidator, checkExistingUsername, createUserAccount);
+userRouter.get('/', modifyHeadersForUser, methodNotAllowedHandler)
+userRouter.put('/', modifyHeadersForUser, methodNotAllowedHandler)
+userRouter.patch('/', modifyHeadersForUser, methodNotAllowedHandler)
+userRouter.delete('/', modifyHeadersForUser, methodNotAllowedHandler)
+userRouter.head('/', modifyHeadersForUser, methodNotAllowedHandler)
+userRouter.options('/', modifyHeadersForUser, methodNotAllowedHandler)
+
+userRouter.post('/', modifyHeadersForUser, checkNoNoQueryParams, createUserInputValidator, checkExistingUsername, createUserAccount);
 
 //authenticated enpoints
-userRouter.get('/self', authenticateToken, checkNoNoQueryParams, getUserAccount);
-userRouter.put('/self', authenticateToken, checkNoNoQueryParams, updateUserValidator, updateUserAccount);
+userRouter.post('/self', modifyHeadersForUser, methodNotAllowedHandler)
+userRouter.patch('/self', modifyHeadersForUser, methodNotAllowedHandler)
+userRouter.delete('/self', modifyHeadersForUser, methodNotAllowedHandler)
+userRouter.head('/self', modifyHeadersForUser, methodNotAllowedHandler)
+userRouter.options('/self', modifyHeadersForUser, methodNotAllowedHandler)
+
+userRouter.get('/self', modifyHeadersForUser, authenticateToken, checkNoNoQueryParams, getUserAccount);
+userRouter.put('/self', modifyHeadersForUser, authenticateToken, checkNoNoQueryParams, updateUserValidator, updateUserAccount);
 
 export default userRouter;
