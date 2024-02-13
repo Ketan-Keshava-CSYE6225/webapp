@@ -17,5 +17,3 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
       - run: npm install
-      - name: testing failed case
-        run: exit 1
