@@ -4,7 +4,7 @@ import userRouter from './routes/userRoutes.js';
 import db from './orm/sequelize.js'
 import { stringToBoolean } from './utils/utils.js';
 
-const app = express();
+export const app = express();
 app.use(express.json());
 
 //Bootstrap the database by synchronizing Sequelize models with the database
