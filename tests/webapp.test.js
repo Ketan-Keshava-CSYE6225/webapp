@@ -13,36 +13,34 @@ afterAll(() => {
 
 /* Application Health Status check */
 
-const healthzPath = "/healthz";
-
 describe("Test 1 | HealthCheck Sucess", () => {
   it("Expect 200 for success", async () => {
-    const res = await request(app).get(healthzPath);
+    const res = await request(app).get("/healthz");
     expect(res.statusCode).toEqual(200);
   });
 });
 
 /* User Module Integration Test */
 
-const userPath = "/v1/user";
-const selfPath = "/v1/user/self";
-
-const rightFormatFirstName = "Ketan";
-const rightFormatLastName = "Keshava";
-const rightFormatPassword = "Password@1";
-const rightFormatEmail = "keshava.ke07@example.com";
+const firstName = "Ketan";
+const lastName = "Keshava";
+const strongPassword = "Password@1";
+const email = "keshava.ke4@example.com";
 
 const createBasicAuth = (username, password) => {
   return "Basic " + Buffer.from(username + ":" + password).toString("base64");
 };
 
+const userPath = "/v1/user";
+const selfPath = "/self";
+
 describe("Test 2 | Create User Account Success", () => {
   it("Expect correct user account creation", async () => {
     const createUserRequestBody = {
-      first_name: rightFormatFirstName,
-      last_name: rightFormatLastName,
-      password: rightFormatPassword,
-      username: rightFormatEmail,
+      first_name: firstName,
+      last_name: lastName,
+      password: strongPassword,
+      username: email,
     };
     const createUserResponse = await request(app)
       .post(userPath)
@@ -50,30 +48,30 @@ describe("Test 2 | Create User Account Success", () => {
     expect(createUserResponse.statusCode).toEqual(201);
 
     const fetchUserResponse = await request(app)
-      .get(selfPath)
-      .set("Authorization", createBasicAuth(rightFormatEmail, rightFormatPassword));
+      .get(userPath + selfPath)
+      .set("Authorization", createBasicAuth(email, strongPassword));
     expect(fetchUserResponse.statusCode).toEqual(200);
-    expect(fetchUserResponse.body.first_name).toEqual(rightFormatFirstName);
-    expect(fetchUserResponse.body.last_name).toEqual(rightFormatLastName);
-    expect(fetchUserResponse.body.username).toEqual(rightFormatEmail);
+    expect(fetchUserResponse.body.first_name).toEqual(firstName);
+    expect(fetchUserResponse.body.last_name).toEqual(lastName);
+    expect(fetchUserResponse.body.username).toEqual(email);
   });
 });
 
 describe("Test 3 | Update User Account Success", () => {
   it("Expect correct user account creation", async () => {
     const updateUserRequestBody = {
-      first_name: "Ket",
-      last_name: "Kesh",
+      first_name: "Keth",
+      last_name: "kesh",
     };
     const updateUserResponse = await request(app)
-      .put(selfPath)
+      .put(userPath + selfPath)
       .send(updateUserRequestBody)
-      .set("Authorization", createBasicAuth(rightFormatEmail, rightFormatPassword));
+      .set("Authorization", createBasicAuth(email, strongPassword));
     expect(updateUserResponse.statusCode).toEqual(204);
 
     const fetchUserResponse = await request(app)
-      .get(selfPath)
-      .set("Authorization", createBasicAuth(rightFormatEmail, rightFormatPassword));
+      .get(userPath + selfPath)
+      .set("Authorization", createBasicAuth(email, strongPassword));
     expect(fetchUserResponse.statusCode).toEqual(200);
     expect(fetchUserResponse.body.account_created).not.toEqual(
       fetchUserResponse.body.account_updated
@@ -84,6 +82,6 @@ describe("Test 3 | Update User Account Success", () => {
     expect(fetchUserResponse.body.last_name).toEqual(
       updateUserRequestBody.last_name
     );
-    expect(fetchUserResponse.body.username).toEqual(rightFormatEmail);
+    expect(fetchUserResponse.body.username).toEqual(email);
   });
 });
