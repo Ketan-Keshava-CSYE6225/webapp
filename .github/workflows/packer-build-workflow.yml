@@ -1,0 +1,106 @@
+name: Integration Test | Build Packer
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build_packer_workflow:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    env:
+      PORT: ${{ secrets.PORT }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_DIALECT: ${{ secrets.DB_DIALECT }}
+      DROP_DB: ${{ secrets.DROP_DB}}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setting up Postgres
+      run: |
+        sudo apt update
+        sudo apt install -y postgresql postgresql-contrib
+        sudo systemctl start postgresql.service
+
+        sudo -u postgres psql -c "CREATE DATABASE ${{ secrets.DB_NAME }};"
+        sudo -u postgres psql -c "CREATE USER ${{ secrets.DB_USERNAME }} WITH PASSWORD '${{ secrets.DB_PASSWORD }}';"
+        sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ${{ secrets.DB_NAME }} TO ${{ secrets.DB_USERNAME }};"
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm run test
+
+    - name: Create env
+      run: |
+        touch .env
+        echo "PORT=${{ secrets.PORT }}" >> .env
+        echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+        echo "DB_USERNAME=${{ secrets.DB_USERNAME }}" >> .env
+        echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+        echo "DB_HOST=${{ secrets.DB_HOST }}" >> .env
+        echo "DB_DIALECT=${{ secrets.DB_DIALECT }}" >> .env
+        echo "DROP_DB=${{ secrets.DROP_DB }}" >> .env
+        cat .env
+
+    - name: Deleting node_modules
+      run: rm -r node_modules
+
+    - name: Zipping webapp artifact
+      run: cd ../ && zip -r webapp.zip webapp && cd - && cp ../webapp.zip .
+
+    - name: Installing Packer
+      run: sudo apt install -y packer
+
+
+
+
+    - name: Packer Init
+      run: packer init ./packer
+    
+    - name: Packer Format
+      run: packer fmt -check ./packer
+    
+    - name: Packer Validate
+      run: packer validate ./packer
+
+  
+    
+    
+    - name: GCP Authentication
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_CREDS }}
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+
+    - name: GCloud Info
+      run: gcloud info
+
+    - name: Setup 'packer'
+      uses: hashicorp/setup-packer@main
+      with:
+        version: '1.10.1'
+
+    - name: Packer Init
+      run: packer init ./packer
+
+    - name: Packer Build
+      run: packer build -var 'project_id=${{ secrets.GCP_PROJ_ID }}' ./packer
