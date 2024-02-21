@@ -19,10 +19,3 @@ sudo yum install -y postgresql-server postgresql-contrib
 sudo postgresql-setup --initdb
 sudo systemctl start postgresql.service
 sudo systemctl enable postgresql.service
-
-# Set up db & user
-sudo -u postgres psql -c "CREATE DATABASE app_db;"
-sudo -u postgres psql -c "CREATE USER app_user WITH PASSWORD 'password';"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE app_db TO app_user;"
-sudo sed -i.bak 's/ident/md5/g' /var/lib/pgsql/data/pg_hba.conf
-sudo systemctl restart postgresql
