@@ -1,7 +1,10 @@
 #!/bin/bash
 
+# Go to Webapp Directory
+cd /opt/csye6225/webapp/
+
 # Log env file
-cat .env || { echo "No .env file found"; exit 1;}
+cat .env || { echo "No .env file found to log"; exit 1;}
 
 # Load env
 source .env
