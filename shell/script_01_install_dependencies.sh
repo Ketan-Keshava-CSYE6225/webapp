@@ -1,8 +1,5 @@
 #!/bin/bash
 
-#Load ENV variables
-source /opt/csye6225/webapp/.env
-
 # OS Update
 # sudo yum update -y
 # sudo yum upgrade -y
@@ -24,8 +21,8 @@ sudo systemctl start postgresql.service
 sudo systemctl enable postgresql.service
 
 # Set up db & user
-sudo -u postgres psql -c "CREATE DATABASE $DB_NAME;"
-sudo -u postgres psql -c "CREATE USER $DB_USERNAME WITH PASSWORD '$DB_PASSWORD';"
-sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE $DB_NAME TO $DB_USERNAME;"
+sudo -u postgres psql -c "CREATE DATABASE app_db;"
+sudo -u postgres psql -c "CREATE USER app_user WITH PASSWORD 'password';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE app_db TO app_user;"
 sudo sed -i.bak 's/ident/md5/g' /var/lib/pgsql/data/pg_hba.conf
 sudo systemctl restart postgresql
