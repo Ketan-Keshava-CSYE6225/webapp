@@ -1,0 +1,31 @@
+name: Validating Packer Workflow
+
+on:
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  validate_packer:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Step 01 - Installing Packer
+      run: |
+        sudo apt-get update
+        sudo apt install -y packer
+
+    - name: Step 02 - Zipping the webapp file
+      run: cd ../ && zip -r webapp.zip webapp && cd - && cp ../webapp.zip .
+    
+    - name: Step 03 - Packer Init
+      run: packer init ./packer
+    
+    - name: Step 04 - Checking Packer Format
+      run: packer fmt -check ./packer
+    
+    - name: Step 05 - Validating Packer
+      run: packer validate ./packer
