@@ -16,7 +16,7 @@ db.sequelize.sync({force: stringToBoolean(process.env.DROP_DB)})
   .catch((error) => {
     console.error('Error synchronizing database: ', error)
   })
-
+return 123
 app.use('/healthz', healthRoutes);
 app.use('/v1/user', userRouter)
 
