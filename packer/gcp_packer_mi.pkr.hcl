@@ -49,6 +49,12 @@ build {
       "./shell/script_05_npm_install.sh",
       "./shell/script_06_start_service.sh"
     ]
+
+    environment_vars = [
+      "DB_USERNAME={var.db_username}",
+      "DB_PASSWORD={var.db_password}",
+      "DB_NAME={var.db_name}"
+    ]
   }
 
 }
@@ -136,3 +142,22 @@ variable "network" {
   type        = string
   default     = "default"
 }
+
+variable "db_username" {
+  description = "The username for the database"
+  type        = string
+  default     = "postgres"
+}
+
+variable "db_password" {
+  description = "The password for the database"
+  type        = string
+  default     = "1234"
+}
+
+variable "db_name" {
+  description = "The name of the database"
+  type        = string
+  default     = "ketankeshav"
+}
+```
