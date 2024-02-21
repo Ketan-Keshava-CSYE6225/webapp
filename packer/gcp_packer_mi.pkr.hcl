@@ -45,7 +45,9 @@ build {
       "./shell/script_01_install_dependencies.sh",
       "./shell/script_02_creation_of_csye6225_user.sh",
       "./shell/script_03_setup_webapp_artifact.sh",
-      "./shell/script_04_start_service.sh"
+      "./shell/script_04_setup_db_user.sh",
+      "./shell/script_05_npm_install.sh",
+      "./shell/script_06_start_service.sh"
     ]
   }
 
