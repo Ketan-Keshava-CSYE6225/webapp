@@ -2,7 +2,8 @@ name: Integration Test | Build Packer
 
 on:
   pull_request:
-    branches: [ "main" ]
+    types:
+      - closed
 
 jobs:
   build_packer_workflow:
@@ -67,21 +68,6 @@ jobs:
 
     - name: Installing Packer
       run: sudo apt install -y packer
-
-
-
-
-    - name: Packer Init
-      run: packer init ./packer
-    
-    - name: Packer Format
-      run: packer fmt -check ./packer
-    
-    - name: Packer Validate
-      run: packer validate ./packer
-
-  
-    
     
     - name: GCP Authentication
       uses: google-github-actions/auth@v2
