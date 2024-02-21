@@ -103,4 +103,4 @@ jobs:
       run: packer init ./packer
 
     - name: Packer Build
-      run: packer build -var 'project_id=${{ secrets.GCP_PROJ_ID }}' ./packer
+      run: packer build -var 'proj_id=${{ secrets.GCP_PROJ_ID }}' ./packer
