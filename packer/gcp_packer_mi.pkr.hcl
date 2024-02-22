@@ -51,9 +51,9 @@ build {
     ]
 
     environment_vars = [
-      "DB_USERNAME={var.db_username}",
-      "DB_PASSWORD={var.db_password}",
-      "DB_NAME={var.db_name}"
+      "DB_USERNAME=${var.db_username}",
+      "DB_PASSWORD=${var.db_password}",
+      "DB_NAME=${var.db_name}"
     ]
   }
 
