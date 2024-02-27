@@ -7,7 +7,7 @@ packer {
   }
 }
 
-source "googlecompute" "custom_image" {
+source "googlecompute" "custom_image"   {
   project_id              = var.proj_id
   source_image            = var.src_img
   source_image_family     = var.src_img_fly
