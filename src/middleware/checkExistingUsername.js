@@ -1,5 +1,6 @@
 import User from '../models/User.js';
 import { findUserByUsername } from '../dataAccessLayer/userDAL.js';
+import logger from '../utils/logger.js';
 
 const checkExistingUsername = async (req, res, next) => {
   try{
@@ -15,10 +16,10 @@ const checkExistingUsername = async (req, res, next) => {
     next();
   } catch(error) {
     if (error.name && error.name === "SequelizeConnectionRefusedError"){
-      console.error('Database connection error: ', error);
+      logger.error('Database connection error: ', error);
       return res.status(503).send();
     } else {
-      console.error('Error checking if user exists: ', error)
+      logger.error('Error checking if user exists: ', error)
       return res.status(500).json({ message: "Internal Server Error"});
     }
   }

@@ -19,3 +19,11 @@ npm -v
 # sudo postgresql-setup --initdb
 # sudo systemctl start postgresql.service
 # sudo systemctl enable postgresql.service
+
+# Installing ops agent
+curl -sSO https://dl.google.com/cloudagents/add-google-cloud-ops-agent-repo.sh
+sudo bash add-google-cloud-ops-agent-repo.sh --also-install
+
+# Move config.yaml to /etc/google-cloud-ops-agent/
+sudo cat /tmp/config.yaml >> /etc/google-cloud-ops-agent/config.yaml
+sudo systemctl restart google-cloud-ops-agent

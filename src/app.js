@@ -3,6 +3,7 @@ import healthRoutes from './routes/healthRoutes.js';
 import userRouter from './routes/userRoutes.js';
 import db from './orm/sequelize.js'
 import { stringToBoolean } from './utils/utils.js';
+import logger from './utils/logger.js';
 
 export const app = express();
 app.use(express.json());
@@ -11,15 +12,15 @@ app.use(express.json());
 //force: stringToBoolean(process.env.DROP_DB)
 db.sequelize.sync({force: stringToBoolean(process.env.DROP_DB)})
   .then(() => {
-    console.log('Database sychronised successfully.')
+    logger.info('Database sychronised successfully.')
   })
   .catch((error) => {
-    console.error('Error synchronizing database: ', error)
+    logger.error('Error synchronizing database: ', error)
   })
 
 app.use('/healthz', healthRoutes);
 app.use('/v1/user', userRouter)
 
 app.listen(process.env.PORT, () => {
-  console.log(`Server is running on port ${process.env.PORT}`);
+  logger.info(`Server is running on port ${process.env.PORT}`);
 });

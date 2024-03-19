@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import User from '../models/User.js';
 import { createUser, updateUserByUsername } from '../dataAccessLayer/userDAL.js';
 import { mapUserWithoutPassword } from '../mappers/userMappers.js';
+import logger from '../utils/logger.js';
 
 const createUserAccount = async (req, res) => {
   try {
@@ -42,11 +43,11 @@ const createUserAccount = async (req, res) => {
     }
 
     if (error.name && error.name === "SequelizeConnectionRefusedError"){
-      console.error('Database connection error: ', error);
+      logger.error('Database connection error: ', error);
       return res.status(503).send();
     }
     
-    console.error('Error creating user:', error);
+    logger.error('Error creating user:', error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -77,19 +78,19 @@ const updateUserAccount = async (req, res) => {
       updateUserData.password = hashedPassword;
     }
 
-    console.log(updateUserData)
+    logger.info(updateUserData)
 
     //Update user information
     const updatedUser = updateUserByUsername(authenticatedUser.username, updateUserData);
-    console.log("Updated User Data -> ", updatedUser)
+    logger.info("Updated User Data -> ", updatedUser)
 
     res.status(204).json();
   } catch(error){
     if (error.name && error.name === 'SequelizeConnectionRefusedError') {
-      console.error('Database connection error: ', error);
+      logger.error('Database connection error: ', error);
       return res.status(503).json();
     } else {
-        console.error('Error authenticating user:', error);
+        logger.error('Error authenticating user:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
   }
@@ -103,10 +104,10 @@ const getUserAccount = async (req, res) => {
     res.status(200).json(userWithoutPassword);
   } catch(error){
     if (error.name && error.name === 'SequelizeConnectionRefusedError') {
-      console.error('Database connection error: ', error);
+      logger.error('Database connection error: ', error);
       return res.status(503).json();
     } else {
-        console.error('Error authenticating user:', error);
+        logger.error('Error authenticating user:', error);
         return res.status(500).json({ message: 'Internal server error' });
     }
   }
