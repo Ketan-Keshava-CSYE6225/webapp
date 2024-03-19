@@ -85,13 +85,13 @@ variable "src_img_fly" {
 variable "zone" {
   description = "The zone in which the instance will be created"
   type        = string
-  default     = "us-east1-b"
+  default     = "us-west4-b"
 }
 
 variable "region" {
   description = "The region where the instance will be created"
   type        = string
-  default     = "us-east-1"
+  default     = "us-west4"
 }
 
 variable "ssh_username" {
