@@ -1,5 +1,6 @@
 import bcrypt from 'bcrypt';
 import { findUserByUsername } from '../dataAccessLayer/userDAL.js';
+import logger from '../utils/logger.js';
 
 const authenticateToken = async (req, res, next) => {
     const authHeader = req.headers.authorization;
@@ -43,10 +44,10 @@ const authenticateToken = async (req, res, next) => {
         next();
     } catch (error) {
         if (error.name && error.name === 'SequelizeConnectionRefusedError') {
-            console.error('Database connection error: ', error);
+            logger.error('Database connection error: ', error);
             return res.status(503).json();
         } else {
-            console.error('Error authenticating user:', error);
+            logger.error('Error authenticating user:', error);
             return res.status(500).json({ message: 'Internal server error' });
         }
     }

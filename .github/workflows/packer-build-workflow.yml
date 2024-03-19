@@ -2,8 +2,10 @@ name: Integration Test | Build Packer
 
 on:
   pull_request:
-    types:
-      - closed
+    # types:
+    #   - closed
+    branches:
+      - main
 
 jobs:
   build_packer_workflow:
@@ -37,6 +39,11 @@ jobs:
         sudo -u postgres psql -c "CREATE USER ${{ secrets.DB_USERNAME }} WITH PASSWORD '${{ secrets.DB_PASSWORD }}';"
         sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE ${{ secrets.DB_NAME }} TO ${{ secrets.DB_USERNAME }};"
     
+    - name: Setup Logger Directory
+      run: |
+          sudo mkdir /var/log/csye6225
+          echo "Logger directory created at /var/log/csye6225"
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:

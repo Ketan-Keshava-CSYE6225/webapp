@@ -40,6 +40,11 @@ build {
     destination = "/tmp/"
   }
 
+  provisioner "file" {
+    source      = "./shell/config.yaml"
+    destination = "/tmp/"
+  }
+
   provisioner "shell" {
     scripts = [
       "./shell/script_01_install_dependencies.sh",
