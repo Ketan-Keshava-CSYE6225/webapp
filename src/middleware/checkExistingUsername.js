@@ -10,6 +10,7 @@ const checkExistingUsername = async (req, res, next) => {
     const existingUser = await findUserByUsername(username);
 
     if (existingUser) {
+      logger.error('User with this email already exists');
       return res.status(400).json({ error: 'User with this email already exists' });
     }
 
