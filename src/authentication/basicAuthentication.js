@@ -7,12 +7,14 @@ const authenticateToken = async (req, res, next) => {
 
     if (!authHeader) {
         res.setHeader('WWW-Authenticate', 'Basic');
+        logger.error('Unauthorized: No credentials provided');
         return res.status(401).json();
     }
 
     // Checking if Basic Auth
     if (!authHeader.startsWith('Basic')) {
         res.setHeader('WWW-Authenticate', 'Basic');
+        logger.warn('Unauthorized: Invalid authentication method')
         return res.status(401).json();
     }
 
@@ -21,6 +23,7 @@ const authenticateToken = async (req, res, next) => {
     const password = auth[1];
 
     if (!username || !password) {
+        logger.error('Unauthorized: Invalid credentials');
         return res.status(401).json();
     }
 
@@ -30,6 +33,7 @@ const authenticateToken = async (req, res, next) => {
 
         if (user === null) {
             // If user not found, return 401 Unauthorized
+            logger.error(`Invalid login attempt for ${username}`);
             return res.status(401).json({ message: 'Unauthorized: User not found' });
         }
 
@@ -37,6 +41,7 @@ const authenticateToken = async (req, res, next) => {
 
         if (!passwordMatch) {
             // If password doesn't match, return 401 Unauthorized
+            logger.error('Unauthorized: Invalid credentials');
             return res.status(401).json({ message: 'Unauthorized: Incorrect password' });
         }
 

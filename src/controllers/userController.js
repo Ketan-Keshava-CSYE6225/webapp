@@ -39,6 +39,7 @@ const createUserAccount = async (req, res) => {
 
     // Check for specific error types
     if (error.name === 'SequelizeUniqueConstraintError') {
+      logger.error('User with this email already exists' );
       return res.status(400).json({ error: 'User with this email already exists' });
     }
 

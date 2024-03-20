@@ -1,11 +1,16 @@
 import User from "../models/User.js";
+import logger from "../utils/logger.js"
 
 const createUser = async (userData) => {
-    return await User.create(userData);
+    const user = await User.create(userData);
+    logger.debug("New user created:" + JSON.stringify(user,null, 2));
+    return user;
 }
 
 const findUserByUsername = async (un) => {
-    return await User.findOne({ where : { username : un } });
+    const user = await User.findOne({ where : { username : un } });
+    logger.debug("User found:" + JSON.stringify(user,null, 2));
+    return user;
 }
 
 const  updateUserByUsername = async (un, userData) => {
@@ -13,6 +18,8 @@ const  updateUserByUsername = async (un, userData) => {
         where: { username: un },
         returning: true
     })
+
+    logger.debug("User updated:" + JSON.stringify(updatedUser,null, 2));
 
     return updatedUser;
 }
