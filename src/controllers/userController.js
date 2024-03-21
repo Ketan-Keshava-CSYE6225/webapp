@@ -44,11 +44,11 @@ const createUserAccount = async (req, res) => {
     }
 
     if (error.name && error.name === "SequelizeConnectionRefusedError"){
-      logger.error('Database connection error: ', error);
+      logger.error('Database connection error: ' + error);
       return res.status(503).send();
     }
     
-    logger.error('Error creating user:', error);
+    logger.error('Error creating user:' + error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -79,7 +79,7 @@ const updateUserAccount = async (req, res) => {
       updateUserData.password = hashedPassword;
     }
 
-    logger.info(updateUserData)
+    // logger.info(updateUserData)
 
     //Update user information
     const updatedUser = updateUserByUsername(authenticatedUser.username, updateUserData);
@@ -88,10 +88,10 @@ const updateUserAccount = async (req, res) => {
     res.status(204).json();
   } catch(error){
     if (error.name && error.name === 'SequelizeConnectionRefusedError') {
-      logger.error('Database connection error: ', error);
+      logger.error('Database connection error: ' + error);
       return res.status(503).json();
     } else {
-        logger.error('Error authenticating user:', error);
+        logger.error('Error authenticating user:' + error);
         return res.status(500).json({ message: 'Internal server error' });
     }
   }
@@ -105,10 +105,10 @@ const getUserAccount = async (req, res) => {
     res.status(200).json(userWithoutPassword);
   } catch(error){
     if (error.name && error.name === 'SequelizeConnectionRefusedError') {
-      logger.error('Database connection error: ', error);
+      logger.error('Database connection error: ' + error);
       return res.status(503).json();
     } else {
-        logger.error('Error authenticating user:', error);
+        logger.error('Error authenticating user:' + error);
         return res.status(500).json({ message: 'Internal server error' });
     }
   }
