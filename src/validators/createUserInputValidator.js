@@ -1,6 +1,7 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats'
 import ajvErrors from 'ajv-errors'
+import logger from '../utils/logger.js';
 
 // Define the JSON schema
 const schema = {
@@ -56,6 +57,7 @@ const createUserInputValidator = (req, res, next) => {
   const unexpectedProperties = Object.keys(req.body).filter(property => !allowedProperties.includes(property));
 
   if (unexpectedProperties.length > 0) {
+    logger.error('Unexpected properties in request body: ' + unexpectedProperties);
     return res.status(400).json({ error: 'Unexpected properties in request body', unexpectedProperties });
   }
 
@@ -64,6 +66,7 @@ const createUserInputValidator = (req, res, next) => {
 
   if (!valid) {
     // If validation fails, return a 400 Bad Request response
+    logger.error('Invalid request body: ' + ajv.errorsText(validate.errors));
     return res.status(400).json({ error: 'Invalid request body', errors: validate.errors });
   }
 

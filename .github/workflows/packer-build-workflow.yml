@@ -2,8 +2,10 @@ name: Integration Test | Build Packer
 
 on:
   pull_request:
-    types:
-      - closed
+    # types:
+    #   - closed
+    branches:
+      - main
 
 jobs:
   build_packer_workflow:
