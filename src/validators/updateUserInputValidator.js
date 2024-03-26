@@ -1,6 +1,7 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats'
 import ajvErrors from 'ajv-errors'
+import logger from '../utils/logger.js';
 
 // Define the JSON schema for updating user information
 const schema = {
@@ -48,6 +49,7 @@ const updateUserValidator = (req, res, next) => {
     //Check if request body contains the field to be updated
     const { first_name, last_name, password } = req.body;
     if(first_name === undefined && last_name === undefined && password === undefined){
+      logger.error('Please provide atleast one field to update');
       return res.status(400).json({ message: 'Please provide atleast one field to update'})
     }
     
@@ -56,7 +58,8 @@ const updateUserValidator = (req, res, next) => {
     const unexpectedProperties = Object.keys(req.body).filter(property => !allowedProperties.includes(property));
 
     if (unexpectedProperties.length > 0) {
-    return res.status(400).json({ error: 'Unexpected properties in request body', unexpectedProperties });
+      logger.error('Unexpected properties in request body: ' + unexpectedProperties);
+      return res.status(400).json({ error: 'Unexpected properties in request body', unexpectedProperties });
     }
     
     // Validating the request body against the JSON schema
@@ -64,7 +67,8 @@ const updateUserValidator = (req, res, next) => {
 
     if (!valid) {
     // If validation fails, return a 400 Bad Request response
-    return res.status(400).json({ error: 'Invalid request body', errors: validate.errors });
+      logger.error('Invalid request body: ' + ajv.errorsText(validate.errors));
+      return res.status(400).json({ error: 'Invalid request body', errors: validate.errors });
     }
 
     next();
