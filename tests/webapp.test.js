@@ -1,5 +1,6 @@
 const request = require("supertest");
 const { app } = require("../src/app.js");
+const { findUserById, updateUserByUsername } = require("../src/dataAccessLayer/userDAL.js");
 
 let appServer;
 
@@ -46,6 +47,11 @@ describe("Test 2 | Create User Account Success", () => {
       .post(userPath)
       .send(createUserRequestBody);
     expect(createUserResponse.statusCode).toEqual(201);
+
+    const createUser = await findUserById(createUserResponse.body.id);
+    const updatedUserData = {};
+    updatedUserData.user_verification_status = true;
+    const updatedUser = await updateUserByUsername(createUser.username, updatedUserData);
 
     const fetchUserResponse = await request(app)
       .get(userPath + selfPath)
