@@ -137,7 +137,7 @@ const verifyUserAccount = async (req, res) => {
       const updatedUser = await updateUserByUsername(user.username, updatedUserData);
 
       logger.info(`User verified: ${updatedUser.id}`);
-      return res.status(200).json({ message: `${updatedUser.username} verified successfully` });
+      return res.status(200).json({ message: `${user.username} verified successfully` });
 
     }
   } catch(error){
