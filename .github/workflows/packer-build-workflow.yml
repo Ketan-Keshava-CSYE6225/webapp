@@ -1,9 +1,14 @@
 name: Integration Test | Build Packer
 
+# on:
+#   push:
+#     branches:
+#       - main
+
 on:
   pull_request:
-    types:
-      - closed
+    branches:
+      - main
 
 jobs:
   build_packer_workflow:
@@ -22,6 +27,8 @@ jobs:
       DB_HOST: ${{ secrets.DB_HOST }}
       DB_DIALECT: ${{ secrets.DB_DIALECT }}
       DROP_DB: ${{ secrets.DROP_DB}}
+      TOPIC_VERIFY_EMAIL: ${{ secrets.TOPIC_VERIFY_EMAIL }}
+      VERIFY_EMAIL_EXPIRY_MILLISECONDS: ${{ secrets.VERIFY_EMAIL_EXPIRY_MILLISECONDS }}
     
     steps:
     - name: Checkout code
@@ -29,8 +36,6 @@ jobs:
 
     - name: Setting up Postgres
       run: |
-        sudo apt update
-        sudo apt install -y postgresql postgresql-contrib
         sudo systemctl start postgresql.service
 
         sudo -u postgres psql -c "CREATE DATABASE ${{ secrets.DB_NAME }};"

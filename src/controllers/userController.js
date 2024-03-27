@@ -1,8 +1,9 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
-import { createUser, updateUserByUsername } from '../dataAccessLayer/userDAL.js';
-import { mapUserWithoutPassword } from '../mappers/userMappers.js';
+import { createUser, updateUserByUsername, findUserById } from '../dataAccessLayer/userDAL.js';
+import { mapUserToUserResponse } from '../mappers/userMappers.js';
 import logger from '../utils/logger.js';
+import { publishMessage } from '../utils/pubsubClient.js';
 
 const createUserAccount = async (req, res) => {
   try {
@@ -24,17 +25,12 @@ const createUserAccount = async (req, res) => {
       // account_updated: currentDateTime
     });
 
-    // Exclude password from response payload
-    const userResponse = {
+    await publishMessage(process.env.TOPIC_VERIFY_EMAIL, {
       id: newUser.id,
-      first_name: newUser.first_name,
-      last_name: newUser.last_name,
-      username: newUser.username,
-      account_created: newUser.account_created,
-      account_updated: newUser.account_updated
-    };
+      email: newUser.username
+    });
 
-    res.status(201).json(userResponse);
+    res.status(201).json(mapUserToUserResponse(newUser));
   } catch (error) {
 
     // Check for specific error types
@@ -100,9 +96,8 @@ const updateUserAccount = async (req, res) => {
 const getUserAccount = async (req, res) => {
   try{
     const authenticatedUser = req.user;
-    const userWithoutPassword = mapUserWithoutPassword(authenticatedUser);
     
-    res.status(200).json(userWithoutPassword);
+    res.status(200).json(mapUserToUserResponse(authenticatedUser));
   } catch(error){
     if (error.name && error.name === 'SequelizeConnectionRefusedError') {
       logger.error('Database connection error: ' + error);
@@ -114,4 +109,46 @@ const getUserAccount = async (req, res) => {
   }
 }
 
-export { createUserAccount, getUserAccount, updateUserAccount };
+const verifyUserAccount = async (req, res) => {
+  try{
+    const { id } = req.params;
+
+    const user = await findUserById(id);
+    if(!user){
+      return res.status(400).json({ message: 'User not found' });
+    }
+
+    if (user.user_verification_status === true) {
+      logger.warn(`User already verified: ${user.id}`)
+      return res.status(200).json({ message: `${user.username} verified successfully` });
+    }
+
+    const currentTimestamp = new Date().getTime();
+
+    if(currentTimestamp - user.verification_email_sent_timestamp.getTime() > process.env.VERIFY_EMAIL_EXPIRY_MILLISECONDS){
+      logger.error(`Verification link expired for ${user.id} `);
+      return res.status(410).json({ message: `Verification link expired for ${user.username} ` });
+    } else {
+      // Prepare the updated user data
+      const updatedUserData = {
+        user_verification_status: true
+      };
+
+      const updatedUser = await updateUserByUsername(user.username, updatedUserData);
+
+      logger.info(`User verified: ${updatedUser.id}`);
+      return res.status(200).json({ message: `${updatedUser.username} verified successfully` });
+
+    }
+  } catch(error){
+    if (error.name && error.name === 'SequelizeConnectionRefusedError') {
+      logger.error('Database connection error: ' + error);
+      return res.status(503).json();
+    } else {
+        logger.error('Error authenticating user:' + error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+};
+
+export { createUserAccount, getUserAccount, updateUserAccount, verifyUserAccount };

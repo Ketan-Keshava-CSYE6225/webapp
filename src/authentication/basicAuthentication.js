@@ -45,6 +45,11 @@ const authenticateToken = async (req, res, next) => {
             return res.status(401).json({ message: 'Unauthorized: Incorrect password' });
         }
 
+        if(user.user_verification_status === false){
+            logger.warn('Unauthorized: User not verified');
+            return res.status(403).json({ message: 'Unauthorized: User not verified' });
+        }
+
         req.user = user;
         next();
     } catch (error) {

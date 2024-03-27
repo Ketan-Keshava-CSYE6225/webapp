@@ -23,4 +23,11 @@ const  updateUserByUsername = async (un, userData) => {
 
     return updatedUser;
 }
-export { createUser , findUserByUsername, updateUserByUsername }
+
+const findUserById = async (userId) => {
+    const user = await User.findOne({ where : { id : userId } });
+    logger.debug("findUserById User:" + JSON.stringify(user,null, 2));
+    return user;
+}
+
+export { createUser , findUserByUsername, updateUserByUsername, findUserById }

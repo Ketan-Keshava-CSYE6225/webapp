@@ -46,6 +46,16 @@ const User = db.sequelize.define('User', {
     type: DataTypes.DATE,
     defaultValue: Sequelize.NOW,
     allowNull: false
+  },
+  verification_email_sent_timestamp: {
+    type: DataTypes.DATE,
+    allowNull: false,
+    defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
+  },
+  user_verification_status: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false
   }
 }, {
   // timestamps: false, // Disable sequelize's default timestamps (createdAt, updatedAt)
