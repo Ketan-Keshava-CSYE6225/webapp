@@ -47,7 +47,12 @@ const User = db.sequelize.define('User', {
     defaultValue: Sequelize.NOW,
     allowNull: false
   },
-  verification_email_sent_timestamp: {
+  verification_token: {
+    type: DataTypes.UUID,
+    allowNull: false,
+    defaultValue: Sequelize.UUIDV4
+  },
+  verification_link_expiry_timestamp: {
     type: DataTypes.DATE,
     allowNull: false,
     defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')

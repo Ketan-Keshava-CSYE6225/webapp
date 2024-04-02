@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import User from '../models/User.js';
-import { createUser, updateUserByUsername, findUserById } from '../dataAccessLayer/userDAL.js';
+import { createUser, updateUserByUsername, findUserById, findUserByToken } from '../dataAccessLayer/userDAL.js';
 import { mapUserToUserResponse } from '../mappers/userMappers.js';
 import logger from '../utils/logger.js';
 import { publishMessage } from '../utils/pubsubClient.js';
@@ -26,7 +26,7 @@ const createUserAccount = async (req, res) => {
     });
 
     await publishMessage(process.env.TOPIC_VERIFY_EMAIL, {
-      id: newUser.id,
+      token: newUser.verification_token,
       email: newUser.username
     });
 
@@ -111,9 +111,9 @@ const getUserAccount = async (req, res) => {
 
 const verifyUserAccount = async (req, res) => {
   try{
-    const { id } = req.params;
+    const { id } = req.params; //params.id = verification_token
 
-    const user = await findUserById(id);
+    const user = await findUserByToken(id);
     if(!user){
       return res.status(400).json({ message: 'User not found' });
     }
@@ -125,9 +125,9 @@ const verifyUserAccount = async (req, res) => {
 
     const currentTimestamp = new Date().getTime();
 
-    if(currentTimestamp - user.verification_email_sent_timestamp.getTime() > process.env.VERIFY_EMAIL_EXPIRY_MILLISECONDS){
-      logger.error(`Verification link expired for ${user.id} `);
-      return res.status(410).json({ message: `Verification link expired for ${user.username} ` });
+    if(currentTimestamp > user.verification_link_expiry_timestamp.getTime()){
+      logger.error(`Verification link expired for ${user.verification_token} `);
+      return res.status(403).json({ message: `Verification link expired for ${user.username} ` });
     } else {
       // Prepare the updated user data
       const updatedUserData = {
