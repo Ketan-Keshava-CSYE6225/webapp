@@ -114,7 +114,7 @@ jobs:
         echo "::set-output name=IMAGE_FAMILY::$IMAGE_FAMILY"
 
     - name: Packer Build
-      run: packer build -var 'proj_id=${{ secrets.GCP_PROJ_ID }}' -var 'db_username=${{ secrets.DB_USERNAME }}' -var 'db_password=${{ secrets.DB_PASSWORD }}' -var 'db_name=${{ secrets.DB_NAME }}' -var 'region=${{ secrets.PROJECT_REGION }}' -var 'image_name=${{ steps.create_image_name.outputs.IMAGE_NAME }}' -var 'image_family=${{ steps.create_image_family.outputs.IMAGE_FAMILY }}' ./packer
+      run: packer build -var 'proj_id=${{ secrets.GCP_PROJ_ID }}' -var 'db_username=${{ secrets.DB_USERNAME }}' -var 'db_password=${{ secrets.DB_PASSWORD }}' -var 'db_name=${{ secrets.DB_NAME }}' -var 'region=${{ secrets.PROJECT_REGION }}' -var 'image_name=${{ steps.create_image_name.outputs.IMAGE_NAME }}' -var 'img_fly=${{ steps.create_image_family.outputs.IMAGE_FAMILY }}' ./packer
 
     - name: Create new Instance Template version
       id: create_instance_template
@@ -173,4 +173,3 @@ jobs:
         --version-target-reached \
         --region=${REGION}
         echo "Managed Instance group is stable"
-        
