@@ -1,7 +1,12 @@
 name: Integration Test | Build Packer
 
+# on:
+#   push:
+#     branches:
+#       - main
+
 on:
-  push:
+  pull_request:
     branches:
       - main
 
@@ -81,5 +86,56 @@ jobs:
     - name: Packer Init
       run: packer init ./packer
 
+    - name: Step 04 - Checking Packer Format
+      run: packer fmt -check ./packer
+    
+    - name: Step 05 - Validating Packer
+      run: packer validate ./packer
+
     - name: Packer Build
       run: packer build -var 'proj_id=${{ secrets.GCP_PROJ_ID }}' -var 'db_username=${{ secrets.DB_USERNAME }}' -var 'db_password=${{ secrets.DB_PASSWORD }}' -var 'db_name=${{ secrets.DB_NAME }}' ./packer
+
+    - name: Create new Instance Template version
+      run: |
+        template_name=${{ secrets.NEW_INSTANCE_TEMPLATE_NAME }}
+        old_instance_template_name=$(gcloud compute instance-templates list --sort-by=creationTimestamp --format="value(name)" --limit=1)
+        region_url=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${{ secrets.PROJECT_REGION }} --format="value(region)")
+        region=$(basename $region_url)
+        machine_type=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${region} --format="value(properties.machineType)")
+        network=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${region} --format="value(properties.networkInterfaces.network)")
+        subnetwork=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${region} --format="value(properties.networkInterfaces.subnetwork)")
+        latest_image_name=$(gcloud compute images list --filter="family:${{ secrets.CUSTOM_IMAGE_FAMILY }}" --sort-by=~creationTimestamp --format="value(name)" --limit=1)
+        latest_image_link=$(gcloud compute images describe ${latest_image_name} --format="value(selfLink)")
+        boot_disk_kms_key=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${region} --format="value(properties.disks.diskEncryptionKey.kmsKeyName)")
+        disk_size=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${region} --format="value(properties.disks.initializeParams.diskSizeGb)")
+        disk_type=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${region} --format="value(properties.disks.initializeParams.diskType)")
+        labels=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${region} --format="value(properties.labels)")
+        tags=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${region} --format="value(properties.tags.items)")
+        metadata=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${region} --format="value(properties.metadata.items.value)")
+        service_account=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${region} --format="value(properties.serviceAccounts.email)")
+        scopes=$(gcloud compute instance-templates describe ${old_instance_template_name} --region=${region} --format="value(properties.serviceAccounts.scopes)")
+        scopes=$(echo "$scopes" | sed "s/\[\|\]//g")
+        scopes=$(echo "$scopes" | sed "s/ *', *'/,/g")
+        scopes=$(echo "$scopes" | sed "s/^'//;s/'$//")
+        echo "Variables initialised"
+        gcloud compute instance-templates create ${template_name} \
+        --instance-template-region=${region} \
+        --machine-type=${machine_type} \
+        --region=${region} \
+        --network=${network} \
+        --subnet=${subnetwork} \
+        --create-disk=image=${latest_image_link},boot=yes,auto-delete=yes,device-name=persistent-disk-0,size=${disk_size},type=${disk_type},kms-key=${boot_disk_kms_key} \
+        --tags=${tags} \
+        --metadata=startup-script="'${metadata}'" \
+        --service-account=${service_account} \
+        --scopes=${scopes} \
+        --reservation-affinity=any
+        echo "Created Instance Template"
+        new_instance_template_self_link=$(gcloud compute instance-templates describe ${template_name} --region=${region} --format="value(selfLink)")
+        managed_instance_group=$(gcloud compute instance-groups managed list --sort-by=creationTimestamp --format="value(name)" --limit=1)
+        gcloud compute instance-groups managed rolling-action start-update  ${managed_instance_group} --version template=${new_instance_template_self_link} --region=${region}
+        echo "Rolling Update initiated with new instance template"
+        gcloud compute instance-groups managed wait-until ${managed_instance_group} \
+        --version-target-reached \
+        --region=${region}
+        echo "Instance group is stable"
