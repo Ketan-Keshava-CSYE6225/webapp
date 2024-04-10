@@ -126,7 +126,7 @@ jobs:
         --subnet=${subnetwork} \
         --create-disk=image=${latest_image_link},boot=yes,auto-delete=yes,device-name=persistent-disk-0,size=${disk_size},type=${disk_type},kms-key=${boot_disk_kms_key} \
         --tags=${tags} \
-        --metadata=startup-script="'${metadata}'" \
+        --metadata=startup-script=${metadata} \
         --service-account=${service_account} \
         --scopes=${scopes} \
         --reservation-affinity=any
