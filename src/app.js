@@ -4,6 +4,7 @@ import userRouter from './routes/userRoutes.js';
 import db from './orm/sequelize.js'
 import { stringToBoolean } from './utils/utils.js';
 import logger from './utils/logger.js';
+import verifyEmailRouter from './routes/verifyEmailRoutes.js';
 
 export const app = express();
 app.use(express.json());
@@ -19,7 +20,8 @@ db.sequelize.sync({force: stringToBoolean(process.env.DROP_DB)})
   })
 
 app.use('/healthz', healthRoutes);
-app.use('/v1/user', userRouter)
+app.use('/v1/user', verifyEmailRouter);
+app.use('/v2/user', userRouter);
 
 app.listen(process.env.PORT, () => {
   logger.info(`Server is running on port ${process.env.PORT}`);

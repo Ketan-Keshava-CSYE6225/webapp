@@ -32,7 +32,7 @@ const createBasicAuth = (username, password) => {
   return "Basic " + Buffer.from(username + ":" + password).toString("base64");
 };
 
-const userPath = "/v1/user";
+const userPath = "/v2/user";
 const selfPath = "/self";
 
 describe("Test 2 | Create User Account Success", () => {

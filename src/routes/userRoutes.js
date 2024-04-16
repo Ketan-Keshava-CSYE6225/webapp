@@ -30,13 +30,13 @@ userRouter.options('/self', modifyHeadersForUser, methodNotAllowedHandler)
 userRouter.get('/self', modifyHeadersForUser, authenticateToken, checkNoNoQueryParams, getUserAccount);
 userRouter.put('/self', modifyHeadersForUser, authenticateToken, checkNoNoQueryParams, updateUserValidator, updateUserAccount);
 
-userRouter.head('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
-userRouter.options('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
-userRouter.post('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
-userRouter.put('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
-userRouter.patch('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
-userRouter.delete('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
+// userRouter.head('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
+// userRouter.options('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
+// userRouter.post('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
+// userRouter.put('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
+// userRouter.patch('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
+// userRouter.delete('/verify/:id', modifyHeadersForUser, methodNotAllowedHandler)
 
-userRouter.get('/verify/:id', modifyHeadersForUser, verifyUserAccount)
+// userRouter.get('/verify/:id', modifyHeadersForUser, verifyUserAccount)
 
 export default userRouter;
