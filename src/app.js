@@ -19,7 +19,7 @@ db.sequelize.sync({force: stringToBoolean(process.env.DROP_DB)})
   })
 
 app.use('/healthz', healthRoutes);
-app.use('/v1/user', userRouter)
+app.use('/v2/user', userRouter)
 
 app.listen(process.env.PORT, () => {
   logger.info(`Server is running on port ${process.env.PORT}`);

@@ -1,7 +1,7 @@
 name: Integration Test | Build Packer
 
 on:
-  push:
+  pull_request:
     branches:
       - main
 
